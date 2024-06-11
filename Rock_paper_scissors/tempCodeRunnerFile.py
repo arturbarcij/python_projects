@@ -1,1 +1,0 @@
-        print(choice[2])
