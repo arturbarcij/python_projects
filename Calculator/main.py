@@ -24,7 +24,7 @@ class Calculator:
 
 calc = Calculator()
 
-x, y = input("Enter two integers").split()
+x, y = map(int, input("Enter two integers").split())
 print("First integer: ", x)
 print("Second integer: ", y)
 print(calc.add(x, y))
