@@ -14,7 +14,7 @@ class Number_guessing_game:
                 if player_guess < random_guess:
                     print("Too low! Try again.")
                 elif player_guess > random_guess:
-                    print("Too high! Try again.")
+                    print("Too high! Try again.")  
                 else:
                     print(f"Congratulations! You guessed the number {random_guess} in {attempts} attempts.")
                     guessed = True
