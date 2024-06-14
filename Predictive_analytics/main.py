@@ -1,11 +1,31 @@
 class Predictive_analytics:
-    import pandas as pd
+    import numpy as np
+    from sklearn.model_selection import train_test_split
+    from sklearn.linear_model import LinearRegression
+    from sklearn.metrics import mean_squared_error
 
-    def initialize(self):
+    # Example dataset: Predicting y from X
+    X = np.array([[1, 1], [1, 2], [2, 2], [2, 3]])
+    y = np.dot(X, np.array([1, 2])) + 3
 
-    def collect_data(self, data):
+    # Split the dataset into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    def analyze_data(self, data):
+    # Initialize the model
+    model = LinearRegression()
 
-    def model_data(self, data):
+    # Train the model
+    model.fit(X_train, y_train)
+
+    # Make predictions
+    y_pred = model.predict(X_test)
+
+    # Evaluate the model
+    mse = mean_squared_error(y_test, y_pred)
+    print(f"Mean Squared Error: {mse}")
+
+    # Output the coefficients
+    print(f"Coefficients: {model.coef_}")
+    print(f"Intercept: {model.intercept_}")
+
      
