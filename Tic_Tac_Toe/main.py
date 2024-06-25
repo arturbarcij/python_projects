@@ -1,3 +1,7 @@
+'''
+TICTACTOE GAME MAIN FUNCTION
+'''
+
 import pygame
 from interface import Interface
 
