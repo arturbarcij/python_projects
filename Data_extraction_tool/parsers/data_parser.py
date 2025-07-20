@@ -6,14 +6,6 @@ def parser():
 def type_of_file:
     ex_data = pd.read_excel('excel_file.xlsx')
     ex_csv = pd.read_csv('csv_file.csv')
-'''
-from openpyxl import load_workbook
-wb = load_workbook('Book.xlsx')
-ws = wb.active
-for row in ws.iter_rows()
-    for cell in row:
-        print cell.valuecom
-'''
 
 from pdfquery import PDFQuery
 
@@ -25,6 +17,14 @@ text_elements = pdf.pq('LTTextLineHorizontal')
 text = [t.text for t in text_elements]
 
 print(text)
+'''
+from openpyxl import load_workbook
+wb = load_workbook('Book.xlsx')
+ws = wb.active
+for row in ws.iter_rows()
+    for cell in row:
+        print cell.valuecom
+'''
 '''
 pdf = pdfquery.PDFQuery("tests/samples/IRS_1040A.pdf")
 pdf.load()
