@@ -1,7 +1,7 @@
 # Practice 8. A work desk, in one file.
 #
-# You add tasks to a waiting line. This first slice only covers arrival:
-# the line remembers titles in the order they were added.
+# You add tasks to a waiting line. The line remembers titles in arrival order.
+# serve takes the front title off the line. undo puts that title back at the front.
 #
 # Later slices, still in this file:
 #   serve the front of the line
@@ -45,12 +45,26 @@ class Desk:
 
     def __init__(self):
         self._line = deque()
-    
+        self._served = []
+
     def add(self, task):
         for waiting in self._line:
             if waiting._title == task._title:
                 raise ValueError("title already waiting")
         self._line.append(task)
+    
+    def serve(self):
+        if len(self._line) == 0:
+            raise ValueError("line is empty")
+        task = self._line.popleft()
+        self._served.append(task)
+        return task._title
+    
+    def undo(self):
+        if len(self._served) == 0:
+            raise ValueError("nothing to undo")
+        task = self._served.pop()
+        self._line.appendleft(task)
     
     def waiting(self):
         return [task._title for task in self._line]
@@ -88,6 +102,50 @@ class ArrivalOrderTest(unittest.TestCase):
     def test_priority_below_one(self):
         with self.assertRaises(ValueError):
             Task("read", 0)
+
+
+class ServeTest(unittest.TestCase):
+    def test_serve_empty_line(self):
+        with self.assertRaises(ValueError):
+            Desk().serve()
+
+    def test_serve_returns_the_front_title(self):
+        desk = Desk()
+        desk.add(Task("write", 2))
+        desk.add(Task("fix", 1))
+        self.assertEqual(desk.serve(), "write")
+        self.assertEqual(desk.waiting(), ["fix"])
+
+    def test_undo_empty_history(self):
+        with self.assertRaises(ValueError):
+            Desk().undo()
+
+    def test_undo_puts_the_served_task_back_at_the_front(self):
+        desk = Desk()
+        desk.add(Task("write", 2))
+        desk.add(Task("fix", 1))
+        desk.add(Task("read", 3))
+        desk.serve()
+        desk.undo()
+        self.assertEqual(desk.waiting(), ["write", "fix", "read"])
+
+    def test_two_serves_undo_back_to_arrival_order(self):
+        desk = Desk()
+        desk.add(Task("write", 2))
+        desk.add(Task("fix", 1))
+        desk.serve()
+        desk.serve()
+        self.assertEqual(desk.waiting(), [])
+        desk.undo()
+        desk.undo()
+        self.assertEqual(desk.waiting(), ["write", "fix"])
+
+    def test_served_title_can_join_again(self):
+        desk = Desk()
+        desk.add(Task("write", 2))
+        desk.serve()
+        desk.add(Task("write", 4))
+        self.assertEqual(desk.waiting(), ["write"])
 
 
 if __name__ == "__main__":
