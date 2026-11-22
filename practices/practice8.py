@@ -29,15 +29,67 @@
 #   adding "write" again raises ValueError and the line stays unchanged
 #   Task("", 1) raises ValueError
 #   Task("read", 0) raises ValueError
+from collections import deque
 
-def Task():
+class Task:
     
-    def __init__(self, title):
+    def __init__(self, title, priority):
+        if len(title) == 0:
+            raise ValueError("empty")
+        if priority < 1:
+            raise ValueError("priority msut be 1 or more")
         self._title = title
+        self._priority = priority
 
+class Desk:
 
-def Desk():
-
-    def __init__(self, desk):
+    def __init__(self):
+        self._line = deque()
     
+    def add(self, task):
+        for waiting in self._line:
+            if waiting._title == task._title:
+                raise ValueError("title already waiting")
+        self._line.append(task)
     
+    def waiting(self):
+        return [task._title for task in self._line]
+
+
+# A unit test builds a situation, calls your code, and checks one result.
+# assertEqual fails when the two values differ.
+# assertRaises fails when the call does not raise that error.
+import unittest
+
+
+class ArrivalOrderTest(unittest.TestCase):
+    def test_line_starts_empty(self):
+        desk = Desk()
+        self.assertEqual(desk.waiting(), [])
+
+    def test_arrival_order_ignores_priority(self):
+        desk = Desk()
+        desk.add(Task("write", 2))
+        desk.add(Task("fix", 1))
+        self.assertEqual(desk.waiting(), ["write", "fix"])
+
+    def test_duplicate_title_leaves_the_line_unchanged(self):
+        desk = Desk()
+        desk.add(Task("write", 2))
+        desk.add(Task("fix", 1))
+        with self.assertRaises(ValueError):
+            desk.add(Task("write", 3))
+        self.assertEqual(desk.waiting(), ["write", "fix"])
+
+    def test_empty_title(self):
+        with self.assertRaises(ValueError):
+            Task("", 1)
+
+    def test_priority_below_one(self):
+        with self.assertRaises(ValueError):
+            Task("read", 0)
+
+
+if __name__ == "__main__":
+    unittest.main()
+
