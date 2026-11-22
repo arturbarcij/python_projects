@@ -8,7 +8,11 @@ class Book:
     
 class Member:
     def __init__(self, name: str):
-        pass
+        self._name = name
+        self._loans = []
+
+    def holding(self) -> list:
+        return [book._title for book in self._loans]
 
 class Library:
     def __init__(self) -> None:
