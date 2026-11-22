@@ -24,14 +24,22 @@ class Library:
         return [book._title for book in self._book_list]
 
     def checkout(self, member: Member, title: str) -> None:
-        pass
+        for book in self._book_list:
+            if book._title == title:
+                self._book_list.remove(book)
+                member._loans.append(book)
+                return
+        raise ValueError("book is not on the shelf")
 
     def return_book(self, member: Member) -> None:
-        pass
+        if len(member._loans) == 0:
+            raise ValueError("nothing to return")
+        self._book_list.append(member._loans.pop())
 
 
 #################################################################
 # Unit tests
+from multiprocessing import Value
 import sys
 import unittest
 
@@ -53,6 +61,38 @@ class ShelfTest(unittest.TestCase):
             library.add(Book("Dune", 2000, "fiction"))
         self.assertEqual(library.titles(), ["Dune"])
 
+
+class CheckoutTest(unittest.TestCase):
+    def test_checkout_moves_the_book_to_the_member(self):
+        library = Library()
+        member = Member("Ana")
+        library.add(Book("Dune", 1965, "fiction"))
+        library.add(Book("Emma", 1815, "fiction"))
+        library.checkout(member, "Dune")
+        self.assertEqual(library.titles(), ["Emma"])
+        self.assertEqual(member.holding(), ["Dune"])
+
+    def test_missing_book_stays_on_the_shelf(self):
+        library = Library()
+        library.add(Book("Dune", 1965, "fiction"))
+        with self.assertRaises(ValueError):
+            library.checkout(Member("Ana"), "Emma")
+        self.assertEqual(library.titles(), ["Dune"])
+
+    def test_return_puts_the_last_book_back(self):
+        library = Library()
+        member = Member("Ana")
+        library.add(Book("Dune", 1965, "fiction"))
+        library.add(Book("Emma", 1815, "fiction"))
+        library.checkout(member, "Dune")
+        library.checkout(member, "Emma")
+        library.return_book(member)
+        self.assertEqual(member.holding(), ["Dune"])
+        self.assertEqual(library.titles(), ["Emma"])
+
+    def test_return_with_no_loan_raises(self):
+        with self.assertRaises(ValueError):
+            Library().return_book(Member("Ana"))
 
 class Report(unittest.TextTestResult):
     def __init__(self, stream, descriptions, verbosity):

@@ -73,6 +73,7 @@ class Desk:
 # A unit test builds a situation, calls your code, and checks one result.
 # assertEqual fails when the two values differ.
 # assertRaises fails when the call does not raise that error.
+import sys
 import unittest
 
 
@@ -148,6 +149,39 @@ class ServeTest(unittest.TestCase):
         self.assertEqual(desk.waiting(), ["write"])
 
 
+class Report(unittest.TextTestResult):
+    def __init__(self, stream, descriptions, verbosity):
+        super().__init__(stream, descriptions, verbosity)
+        self.total = 0
+
+    def _mark(self, test, label):
+        print(f"{label} ({self.testsRun}/{self.total}) {test._testMethodName}")
+
+    def addSuccess(self, test):
+        super().addSuccess(test)
+        self._mark(test, "PASS")
+
+    def addFailure(self, test, err):
+        super().addFailure(test, err)
+        self._mark(test, "FAIL")
+
+    def addError(self, test, err):
+        super().addError(test, err)
+        self._mark(test, "FAIL")
+
+
+class Runner(unittest.TextTestRunner):
+    def run(self, test):
+        result = self._makeResult()
+        result.total = test.countTestCases()
+        test(result)
+        result.printErrors()
+        return result
+
+
 if __name__ == "__main__":
-    unittest.main()
+    suite = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
+    result = Runner(resultclass=Report, verbosity=0).run(suite)
+    passed = result.testsRun - len(result.failures) - len(result.errors)
+    print(f"\n{passed}/{result.testsRun} passed")
 
