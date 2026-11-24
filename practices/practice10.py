@@ -11,14 +11,11 @@ time.
 
 class Room:
 
-    def __init__(self, rows, inventory, x, y):
+    def __init__(self, rows, x, y):
         self._rows = [list(row) for row in rows]
         self._inventory = set()
         self._x = x
         self._y = y
-    
-    def grid(self, direction):
-        pass
 
     def move(self, direction):
         steps = {
@@ -30,8 +27,11 @@ class Room:
         dx, dy = steps[direction]
         new_x = self._x + dx
         new_y = self._y + dy
-
-        title = self._rows[new_y][new_x]
+        if new_y < 0 or new_y >= len(self._rows):
+            return
+        if new_x < 0 or new_x >= len(self._rows[new_y]):
+            return
+        tile = self._rows[new_y][new_x]
         if tile == "#":
             return
         if tile == "D" and "key" not in self._inventory:
@@ -42,17 +42,8 @@ class Room:
         self._x = new_x
         self._y = new_y
 
-        def inventory(self)
-            return sorted(self._inventory)
-
-        if new_y < 0 or new_y >= len(self._rows):
-            return
-        if new_x < 0 or new_x >= len(self._rows[new_y]):
-            return
-        if self._rows[new_y][new_x] == "#":
-            return
-        self._x = new_x
-        self._y = new_y
+    def inventory(self):
+        return sorted(self._inventory)
     
     def coordinates(self):
         return (self._x, self._y)
