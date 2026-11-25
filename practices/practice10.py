@@ -98,7 +98,7 @@ class Room:
                     path.reverse()
                     return path
                 frontier.append(nxt)
-            return []
+        return []
         
 
 class Play:
