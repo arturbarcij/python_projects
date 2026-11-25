@@ -17,6 +17,7 @@ class Room:
     def __init__(self, rows, x, y):
         self._rows = [list(row) for row in rows]
         self._inventory = set()
+        self._history = []
         self._x = x
         self._y = y
 
@@ -39,6 +40,7 @@ class Room:
             return
         if tile == "D" and "key" not in self._inventory:
             return
+        self._history.append((self._x, self._y, set(self._inventory), new_x, new_y, tile))
         if tile == "k":
             self._inventory.add("key")
             self._rows[new_y][new_x] = "."
@@ -56,10 +58,10 @@ class Room:
         view[self._y][self._x] = "@"
         return view
     
-    def undo(self, direction):
+    def undo(self):
         if len(self._history) == 0:
             raise ValueError("nothing to undo")
-        x, y, inventory, tile_x, tile_y = self._history.pop()
+        x, y, inventory, tile_x, tile_y, tile = self._history.pop()
         self._x = x
         self._y = y
         self._inventory = inventory
@@ -100,6 +102,16 @@ class Room:
                 frontier.append(nxt)
         return []
         
+    def guard(self, x, y):
+        player_x, player_y = self._x, self._y
+        self._x, self._y = x, y
+        path = self.path_to(player_x,, player_y)
+        self._x, self._y = player_x, player_y
+        if len(path) < 2:
+            return (x, y)
+        return path[1]
+
+        
 
 class Play:
 
@@ -129,3 +141,9 @@ room = Room([".k.", "...", "..D"], 0, 0)
 room.move("right")
 print(room.inventory()) # ['key']
 print(room.look()) # [['.', '@', '.'], ['.', '.', '.'], ['.', '.', 'D']]
+
+
+room.move("down")
+print(room.guard(2, 1))          # (1, 1)
+print(room.guard(1, 1))          # (0, 1), the player's tile
+print(room.coordinates())        # (0, 1), the player never moved
